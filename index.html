@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多人圈圈叉叉遊戲</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- GUN.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/lib/webrtc.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>多人圈圈叉叉遊戲</h1>
+        
+        <div id="player-info">
+            <input type="text" id="player-name" placeholder="輸入你的名字">
+            <button id="join-game">加入遊戲</button>
+        </div>
+
+        <div id="game-status"></div>
+        
+        <div id="game-board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+
+        <button id="restart-game" style="display: none;">重新開始遊戲</button>
+
+        <div id="players-list">
+            <h3>線上玩家</h3>
+            <ul id="players"></ul>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
