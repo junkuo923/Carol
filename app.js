@@ -1,11 +1,11 @@
 // 初始化 GUN
-const gun = Gun({
+let gun = Gun({
     peers: ['https://gun-manhattan.herokuapp.com/gun']
 });
 
 // 遊戲狀態
-const gameState = gun.get('tic-tac-toe');
-const players = gun.get('players');
+let gameState = gun.get('tic-tac-toe');
+let players = gun.get('players');
 let currentPlayer = null;
 let mySymbol = null;
 
@@ -251,3 +251,71 @@ document.getElementById('app').appendChild(clearDbButton);
 
 // 監聽清空資料庫按鈕點擊事件
 clearDbButton.addEventListener('click', clearDatabase);
+
+// 新增重新連線功能
+function reconnect() {
+    // 重新初始化 GUN
+    gun = Gun({
+        peers: ['https://gun-manhattan.herokuapp.com/gun']
+    });
+
+    // 重新綁定遊戲狀態
+    gameState = gun.get('tic-tac-toe');
+    players = gun.get('players');
+
+    // 重置本地狀態
+    currentPlayer = null;
+    mySymbol = null;
+    board = Array(9).fill('');
+
+    // 清理界面
+    gameBoard.querySelectorAll('.cell').forEach(cell => {
+        cell.textContent = '';
+        cell.className = 'cell';
+    });
+    
+    // 重置遊戲狀態
+    gameStatus.innerHTML = '重新連線中...';
+    setTimeout(() => {
+        gameStatus.innerHTML = '請重新輸入名字加入遊戲';
+        playerInfo.style.display = 'block';
+    }, 1000);
+
+    // 清空玩家列表
+    playersList.innerHTML = '';
+}
+
+// 添加重新連線按鈕
+const reconnectButton = document.createElement('button');
+reconnectButton.textContent = '重新連線';
+reconnectButton.id = 'reconnect';
+reconnectButton.style.backgroundColor = '#ffc107';
+reconnectButton.style.color = 'black';
+reconnectButton.style.marginTop = '20px';
+reconnectButton.style.marginRight = '10px';
+document.getElementById('app').insertBefore(reconnectButton, clearDbButton);
+
+// 監聽重新連線按鈕點擊事件
+reconnectButton.addEventListener('click', reconnect);
+
+// 檢測連線狀態
+let lastUpdate = Date.now();
+const connectionCheck = setInterval(() => {
+    const now = Date.now();
+    if (now - lastUpdate > 10000) { // 10秒沒有更新就顯示重新連線按鈕
+        reconnectButton.style.display = 'block';
+        gameStatus.innerHTML = '似乎斷線了，請點擊重新連線';
+        gameStatus.style.color = '#ffc107';
+    }
+}, 5000);
+
+// 更新最後活動時間
+gameState.get('board').map().on(() => {
+    lastUpdate = Date.now();
+    reconnectButton.style.display = 'none';
+});
+
+players.map().on(() => {
+    lastUpdate = Date.now();
+    reconnectButton.style.display = 'none';
+});
