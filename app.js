@@ -216,3 +216,38 @@ document.getElementById('restart-game').addEventListener('click', () => {
     gameState.get('board').map().put(null);
     resetGame();
 });
+
+// 清空資料庫
+function clearDatabase() {
+    // 清空遊戲板
+    gameState.get('board').map().put(null);
+    
+    // 清空玩家列表
+    players.map().once((data, key) => {
+        if (data) {
+            players.get(key).put(null);
+        }
+    });
+    
+    // 重置遊戲狀態
+    resetGame();
+    
+    // 顯示加入遊戲區域
+    playerInfo.style.display = 'block';
+    playerNameInput.value = '';
+    
+    // 重置當前玩家
+    currentPlayer = null;
+    mySymbol = null;
+}
+
+// 添加清空資料庫按鈕到 HTML
+const clearDbButton = document.createElement('button');
+clearDbButton.textContent = '清空遊戲資料';
+clearDbButton.id = 'clear-db';
+clearDbButton.style.backgroundColor = '#dc3545';
+clearDbButton.style.marginTop = '20px';
+document.getElementById('app').appendChild(clearDbButton);
+
+// 監聽清空資料庫按鈕點擊事件
+clearDbButton.addEventListener('click', clearDatabase);
