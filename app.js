@@ -121,8 +121,9 @@ function checkGameStatus() {
         const [a, b, c] = pattern;
         if (board[a] && board[a] === board[b] && board[a] === board[c]) {
             gameStatus.textContent = `玩家 ${board[a]} 獲勝！`;
+            gameStatus.style.color = board[a] === 'X' ? '#dc3545' : '#0d6efd';
             disableBoard();
-            showRestartButton();
+            document.getElementById('restart-game').style.display = 'block';
             return;
         }
     }
@@ -130,18 +131,30 @@ function checkGameStatus() {
     // 檢查平局
     if (!board.includes('')) {
         gameStatus.textContent = '平局！';
+        gameStatus.style.color = '#6c757d';
         disableBoard();
-        showRestartButton();
+        document.getElementById('restart-game').style.display = 'block';
         return;
     }
 
     // 更新回合狀態
     const isXTurn = board.filter(cell => cell !== '').length % 2 === 0;
     if (mySymbol === 'X' && isXTurn || mySymbol === 'O' && !isXTurn) {
-        gameStatus.textContent = '輪到你了 (' + mySymbol + ')';
+        gameStatus.textContent = '🎮 輪到你了！';
+        gameStatus.style.color = mySymbol === 'X' ? '#dc3545' : '#0d6efd';
+        gameBoard.style.pointerEvents = 'auto';
     } else {
-        gameStatus.textContent = '等待對手下棋 (' + mySymbol + ')';
+        gameStatus.textContent = '⌛ 等待對手下棋中...';
+        gameStatus.style.color = '#6c757d';
+        gameBoard.style.pointerEvents = 'none';
     }
+
+    // 在狀態下方顯示符號提醒
+    const symbolReminder = document.createElement('div');
+    symbolReminder.style.fontSize = '0.8em';
+    symbolReminder.style.marginTop = '5px';
+    symbolReminder.textContent = `你的符號是 ${mySymbol}`;
+    gameStatus.appendChild(symbolReminder);
 }
 
 // 顯示重新開始按鈕
@@ -157,38 +170,14 @@ function hideRestartButton() {
 // 重置遊戲
 function resetGame() {
     board = Array(9).fill('');
-    gameBoard.style.pointerEvents = 'auto';
-    
-    // 清除遊戲板
-    Array.from(gameBoard.children).forEach(cell => {
+    gameBoard.querySelectorAll('.cell').forEach(cell => {
         cell.textContent = '';
-        cell.classList.remove('X', 'O');
+        cell.className = 'cell';
     });
-
-    // 重置 GUN.js 中的遊戲狀態
-    gameState.get('board').map().once((value, index) => {
-        if (value) {
-            gameState.get('board').get(index).put(null);
-        }
-    });
-
-    hideRestartButton();
-    
-    // 更新遊戲狀態
-    const playerArray = [];
-    players.map().once((p) => {
-        if (p) playerArray.push(p);
-    });
-
-    setTimeout(() => {
-        if (playerArray.length === 2) {
-            if (mySymbol === 'X') {
-                gameStatus.textContent = '輪到你了 (X)';
-            } else {
-                gameStatus.textContent = '等待對手下棋 (O)';
-            }
-        }
-    }, 100);
+    gameBoard.style.pointerEvents = 'auto';
+    document.getElementById('restart-game').style.display = 'none';
+    gameStatus.innerHTML = '';
+    checkGameStatus();
 }
 
 // 監聽重新開始按鈕點擊事件
@@ -220,4 +209,10 @@ gameState.get('board').map().once((value, index) => {
     if (value) {
         updateCell(parseInt(index), value);
     }
+});
+
+// 添加重新開始按鈕事件監聽
+document.getElementById('restart-game').addEventListener('click', () => {
+    gameState.get('board').map().put(null);
+    resetGame();
 });
